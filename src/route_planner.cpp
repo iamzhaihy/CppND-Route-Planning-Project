@@ -22,7 +22,7 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
     // Populate current_node.neighbors
     current_node->FindNeighbors();
-
+    
     for (RouteModel::Node *neighbor: current_node->neighbors) {
         // Add visited neighbor nodes
         if (neighbor->visited == false) {
@@ -77,16 +77,26 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 }
 
 
-// TODO 7: Write the A* Search algorithm here.
-// Tips:
-// - Use the AddNeighbors method to add all of the neighbors of the current node to the open_list.
-// - Use the NextNode() method to sort the open_list and return the next node.
-// - When the search has reached the end_node, use the ConstructFinalPath method to return the final path that was found.
-// - Store the final path in the m_Model.path attribute before the method exits. This path will then be displayed on the map tile.
-
 void RoutePlanner::AStarSearch() {
+    start_node->visited = true;
+    start_node->parent = nullptr;
+    start_node->g_value = 0.0f;
+    start_node->h_value = CalculateHValue(start_node);
+    open_list.push_back(start_node);
+
     RouteModel::Node *current_node = nullptr;
 
-    // TODO: Implement your solution here.
+    while (!open_list.empty()) {
+        // Find closest node
+        current_node = NextNode();
 
+        // Construct the path if reached the goal
+        if (current_node == end_node) {
+            m_Model.path = ConstructFinalPath(current_node);
+            return;
+        }
+
+        // Expand neighbors otherwise
+        AddNeighbors(current_node);
+    }
 }
